@@ -51,7 +51,7 @@ const Main = () => {
   };
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/tasks", {
+      const res = await axios.get("https://task-management-application-8t8x.onrender.com/api/tasks", {
         headers: {
           token: JWT,
           Accept: "application/json",
@@ -69,7 +69,7 @@ const Main = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:8080/api/tasks/create-task",
+        "https://task-management-application-8t8x.onrender.com/api/tasks/create-task",
         data,
         {
           headers: {
@@ -99,7 +99,7 @@ const Main = () => {
 
   const handleDelete = async (task_data) => {
     try {
-      const res = await axios.delete("http://localhost:8080/api/tasks/delete", {
+      const res = await axios.delete("https://task-management-application-8t8x.onrender.com/api/tasks/delete", {
         data: task_data,
       });
       if (res.status == 200) {
@@ -123,7 +123,7 @@ const Main = () => {
   };
   const handleUpdate = async (task_data) => {
     try {
-      const res = await axios.post("http://localhost:8080/api/tasks/edit", {
+      const res = await axios.post("https://task-management-application-8t8x.onrender.com/api/tasks/edit", {
         id: task_data.id,
         userId: task_data.userId,
         taskTitle: task_data.taskTitle,
