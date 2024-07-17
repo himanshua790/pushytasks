@@ -1,5 +1,5 @@
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { FormControlLabel, Switch } from "@mui/material";
+import { FormControlLabel, Grid, Link, Switch } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -19,6 +19,7 @@ export default function Signup() {
   const [data, setData] = useState({
     name: "",
     isAdmin: false,
+    orgName: "",
   });
 
   const handleToggle = (event) => {
@@ -43,6 +44,7 @@ export default function Signup() {
           name: data.name,
           metamaskAddress,
           role: data.isAdmin ? "admin" : "user",
+          orgName: data.orgName,
         });
         navigate("/login");
       } catch (error) {
@@ -98,6 +100,21 @@ export default function Signup() {
               label=" Username"
               autoFocus
             />
+            {
+              data.isAdmin && (
+                <TextField
+                autoComplete="orgName"
+                onChange={handleChange}
+                name="orgName"
+                required
+                fullWidth
+                id="orgName"
+                label="Organization Name"
+                autoFocus
+                sx={{ mt: 3 }}
+              />
+              )
+            }
             <FormControlLabel
               control={
                 <Switch
@@ -118,6 +135,13 @@ export default function Signup() {
               Sign Up
             </Button>
           </Box>
+          <Grid container>
+            <Grid item>
+              <Link href="/login" variant="body2">
+                {"Already have account? Sign In"}
+              </Link>
+            </Grid>
+          </Grid>
         </Box>
       </Container>
     </ThemeProvider>

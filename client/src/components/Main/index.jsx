@@ -1,24 +1,25 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import {
-  TextField,
-  Stack,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
+  Select,
+  Stack,
+  TextField,
 } from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { useState, useEffect } from "react";
-import Grid from "@mui/material/Grid";
-import Container from "@mui/material/Container";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { useNavigate } from "react-router-dom";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
 import Modal from "@mui/material/Modal";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+// import { CONSTANTS, PushAPI } from "@pushprotocol/restapi";
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 
 const style = {
@@ -37,8 +38,8 @@ const Main = () => {
   const [tasks, setTasks] = useState(null);
   const [taskModal, setTaskModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-  const [role, setRole] = useState("user");
   const [taskDetailModal, setTaskDetailModal] = useState(false);
+  const [users, setUsers] = useState(null);
   const [data, setData] = useState({
     taskTitle: "",
     taskDetail: "",
@@ -57,6 +58,23 @@ const Main = () => {
   const handleEditInput = (e) => {
     e.preventDefault();
     setTask({ ...task, [e.target.name]: e.target.value });
+  };
+
+  const createChannel = async () => {
+    try {
+      // Creating a random signer from a wallet, ideally this is the wallet you will connect
+      // const signer = ethers.Wallet.createRandom();
+      // console.log(signer);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      // Initialize wallet user
+      // const userAlice = await PushAPI.initialize(signer, {
+      //   env: CONSTANTS.ENV.STAGING,
+      // });
+      // console.log(userAlice);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const fetchTasks = async () => {
@@ -85,7 +103,7 @@ const Main = () => {
         },
       });
       if (res.status === 200) {
-        setRole(res.data.role);
+        setUsers(res.data);
       } else {
         console.log("Error :", res.status);
       }
@@ -254,7 +272,29 @@ const Main = () => {
         </AppBar>
       </Box>
       <Container sx={{ mt: 5 }}>
-        {role === "admin" && (
+        {users?.role === "admin" && (
+          <Box>
+            <h4>Org: {users?.org?.name}</h4>
+            <h4>Channel: {users?.org?.channel || "undefined"}</h4>
+            {!users?.org?.channel && (
+              <Button
+                variant="outlined"
+                onClick={() => createChannel()}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#0069d9",
+                    borderColor: "#0062cc",
+                    color: "#ffff",
+                    boxShadow: "0 0 0 0.2rem rgba(0,123,255,.5)",
+                  },
+                }}
+              >
+                Create Channel
+              </Button>
+            )}
+          </Box>
+        )}
+        {users?.role === "admin" && (
           <Button
             variant="outlined"
             onClick={() => setTaskModal(true)}
@@ -567,17 +607,20 @@ const Main = () => {
                     >
                       View Details
                     </Button>
-                    {role === "user" && (
+                    {users?.role === "user" && (
                       <Button
                         size="small"
                         onClick={() => acceptTask(task._id)}
                         disabled={task.assignTo}
-                        sx={{ mt: 2, color: task.assignTo ? "success.main" : "" }}
+                        sx={{
+                          mt: 2,
+                          color: task.assignTo ? "success.main" : "",
+                        }}
                       >
                         {task.assignTo ? "Accepted" : "Accept"}
                       </Button>
                     )}
-                    {role === "admin" && (
+                    {users?.role === "admin" && (
                       <>
                         <Button
                           size="small"
