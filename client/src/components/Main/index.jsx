@@ -114,17 +114,13 @@ const Main = () => {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      const res = await axiosInstance.post(
-        "/api/tasks/create-task",
-        data,
-        {
-          headers: {
-            token: JWT,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await axiosInstance.post("/api/tasks/create-task", data, {
+        headers: {
+          token: JWT,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
       if (res.status === 201) {
         setTaskModal(false);
         alert("Task created successfully");
@@ -147,12 +143,9 @@ const Main = () => {
 
   const handleDelete = async (task_data) => {
     try {
-      const res = await axiosInstance.delete(
-        "/api/tasks/delete",
-        {
-          data: task_data,
-        }
-      );
+      const res = await axiosInstance.delete("/api/tasks/delete", {
+        data: task_data,
+      });
       if (res.status === 200) {
         await fetchTasks();
       }
@@ -175,18 +168,15 @@ const Main = () => {
   };
   const handleUpdate = async (task_data) => {
     try {
-      const res = await axiosInstance.post(
-        "/api/tasks/edit",
-        {
-          id: task_data.id,
-          userId: task_data.userId,
-          taskTitle: task_data.taskTitle,
-          taskDetail: task_data.taskDetail,
-          taskDeadline: task_data.taskDeadline,
-          reward: task_data.reward,
-          status: task_data.status,
-        }
-      );
+      const res = await axiosInstance.post("/api/tasks/edit", {
+        id: task_data.id,
+        userId: task_data.userId,
+        taskTitle: task_data.taskTitle,
+        taskDetail: task_data.taskDetail,
+        taskDeadline: task_data.taskDeadline,
+        reward: task_data.reward,
+        status: task_data.status,
+      });
       if (res.status === 200) {
         alert("Task updated successfully");
         setEditModal(false);
@@ -251,19 +241,32 @@ const Main = () => {
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static" style={{ background: "teal" }}>
+        <AppBar position="static" style={{ background: "#ECDEFD" }}>
           <Toolbar>
+            <img src="logo.jpeg" height={60} alt="logo" />
             <Typography
               variant="h6"
               noWrap
               component="div"
-              sx={{ display: { xs: "none", sm: "block" } }}
+              sx={{
+                display: {
+                  xs: "none",
+                  sm: "block",
+                  color: "#505050",
+                  fontWeight: "bold",
+                  fontSize: "24px",
+                },
+              }}
             >
-              Task Management App
+              Pushy Tasks
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <Button color="inherit" onClick={handleLogout}>
+            <Box sx={{ display: { xs: "none", md: "flex", color: "#505050" } }}>
+              <Button
+                color="inherit"
+                onClick={handleLogout}
+                sx={{ fontWeight: "bold" }}
+              >
                 Logout
               </Button>
             </Box>
@@ -587,6 +590,7 @@ const Main = () => {
           </Box>
         </Modal>
         <Grid container spacing={2} sx={{ mt: 2 }}>
+          {tasks?.length === 0 && <p>No tasks found</p>}
           {tasks &&
             tasks.map((task, i) => (
               <Grid item key={i} xs={12} md={6} lg={4}>
