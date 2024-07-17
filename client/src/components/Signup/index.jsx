@@ -8,9 +8,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import axios from "axios";
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosInstance";
 
 const defaultTheme = createTheme();
 
@@ -39,8 +39,8 @@ export default function Signup() {
           method: "eth_requestAccounts",
         });
         const metamaskAddress = accounts[0];
-        const url = "http://localhost:5000/api/users";
-        const res = await axios.post(url, {
+        const url = "/api/users";
+         await axiosInstance.post(url, {
           name: data.name,
           metamaskAddress,
           role: data.isAdmin ? "admin" : "user",

@@ -17,7 +17,6 @@ import Modal from "@mui/material/Modal";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 // import { CONSTANTS, PushAPI } from "@pushprotocol/restapi";
-import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
@@ -65,8 +64,8 @@ const Main = () => {
       // Creating a random signer from a wallet, ideally this is the wallet you will connect
       // const signer = ethers.Wallet.createRandom();
       // console.log(signer);
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+      // const provider = new ethers.providers.Web3Provider(window.ethereum);
+      // const signer = provider.getSigner();
       // Initialize wallet user
       // const userAlice = await PushAPI.initialize(signer, {
       //   env: CONSTANTS.ENV.STAGING,
@@ -79,7 +78,7 @@ const Main = () => {
 
   const fetchTasks = async () => {
     try {
-      const res = await axiosInstance.get("http://localhost:5000/api/tasks", {
+      const res = await axiosInstance.get("/api/tasks", {
         headers: {
           token: JWT,
           Accept: "application/json",
@@ -95,7 +94,7 @@ const Main = () => {
 
   const fetchUser = async () => {
     try {
-      const res = await axiosInstance.get("http://localhost:5000/api/users", {
+      const res = await axiosInstance.get("/api/users", {
         headers: {
           token: JWT,
           Accept: "application/json",
@@ -116,7 +115,7 @@ const Main = () => {
     e.preventDefault();
     try {
       const res = await axiosInstance.post(
-        "http://localhost:5000/api/tasks/create-task",
+        "/api/tasks/create-task",
         data,
         {
           headers: {
@@ -149,7 +148,7 @@ const Main = () => {
   const handleDelete = async (task_data) => {
     try {
       const res = await axiosInstance.delete(
-        "http://localhost:5000/api/tasks/delete",
+        "/api/tasks/delete",
         {
           data: task_data,
         }
@@ -177,7 +176,7 @@ const Main = () => {
   const handleUpdate = async (task_data) => {
     try {
       const res = await axiosInstance.post(
-        "http://localhost:5000/api/tasks/edit",
+        "/api/tasks/edit",
         {
           id: task_data.id,
           userId: task_data.userId,
@@ -226,7 +225,7 @@ const Main = () => {
           params: [message, metamaskAddress],
         });
 
-        const url = "http://localhost:5000/api/tasks/accept";
+        const url = "/api/tasks/accept";
         const res = await axiosInstance.post(url, {
           metamaskAddress,
           taskId,

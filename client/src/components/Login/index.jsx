@@ -5,12 +5,12 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
+import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import axios from "axios";
 import React from "react";
-import {  useNavigate } from "react-router-dom";
-import Link from '@mui/material/Link';
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosInstance";
 
 const defaultTheme = createTheme();
 
@@ -25,8 +25,8 @@ export default function Login() {
           method: "eth_requestAccounts",
         });
         const metamaskAddress = accounts[0];
-        const url = "http://localhost:5000/api/auth";
-        const res = await axios.post(url, { metamaskAddress });
+        const url = "/api/auth";
+        const res = await axiosInstance.post(url, { metamaskAddress });
         localStorage.setItem("token", res.data.token);
         navigate("/home");
         window.location.reload();
