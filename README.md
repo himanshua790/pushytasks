@@ -1,86 +1,75 @@
-# Task App with JWT Authentication
 
-Task App is a powerful and secure task management application designed to help you stay organized and productive. Easily create, update, and manage your tasks with this user-friendly web-based application, all while benefiting from JWT-based user authentication for enhanced security.
+# Pushytasks
 
-## Features
-JWT User Authentication: Securely create an account, log in, and access your tasks using JSON Web Tokens (JWT) for robust authentication and authorization.
-
-Task Creation: Add new tasks with titles, descriptions, due dates, and priority levels.
-
-Task List: View and manage your tasks in a clear and organized list format.
-
-Task Details: Access detailed information about each task, including its description and due date.
-
-Task Editing: Edit task details, update due dates, and change priority levels as needed.
-
-Task Deletion: Remove completed or unnecessary tasks from your list.
-
-Responsive Design: Enjoy a seamless experience on both desktop and mobile devices.
+Pushytasks is a project developed for BRBBootcamp by PushProtocol, consisting of a React client and an Express.js server for handling push notifications and task management.
 
 ## Getting Started
-To run this application locally or deploy it on your server, follow these steps:
 
-Clone the Repository:
+### Prerequisites
 
-```bash
-git clone https://github.com/himanshua790/pushytasks.git
-cd task-app
-```
-## Install Dependencies:
-```bash
+Ensure you have Node.js and npm installed on your machine.
+
+### Installation
+
+Clone the repository:
+bash
+git clone <repository-url>
+cd pushytasks
+#### Client Setup
+
+Navigate to the client folder and install dependencies:
+bash
+cd client
 npm install
-```
-## Configure Environment Variables:
+Create a `.env` file in the client folder and add the following:
+plaintext
+VITE_BASE_URL=
+Start the React app:
+bash
+npm run dev
+The client app will start at [http://localhost:3000](http://localhost:3000).
 
-Create a `.env` file in the project root.
-Define the necessary environment variables, such as the JWT secret, database connection information, and session settings.
+#### Server Setup
 
-## Database Setup:
+Navigate to the server folder and install dependencies:
+bash
+cd ../server
+npm install
+Create a `.env` file in the server folder and add the following:
+plaintext
+DB=<MongoDB-URI>
+JWT_SECRET_KEY=<Your-JWT-Secret>
+Start the Express server:
+bash
+npm run start
+The server will start at [http://localhost:8000](http://localhost:8000).
 
-Set up your preferred database (e.g., MongoDB,DynamoDB).
-Update the database connection URL in your `.env` file.
-Start the Application:
+## Folder Structure
 
-```bash
-npm start
-```
-Access the Application:
-Open your web browser and navigate to ```http://localhost:3000``` (or the specified port).
-
-## JWT Authentication
-Task App uses JSON Web Tokens (JWT) for user authentication and authorization. Here's how JWT authentication works:
-
-**User Registration**: Users can securely create an account with a unique username and a strong password.
-
-**User Login**: Upon successful registration, users can log in using their credentials, and the server will issue a JWT for subsequent authentication.
-
-**JWT Authorization**: The JWT is used to authorize users and grant access to their tasks. It is included in the request headers for protected routes.
-
-**Token Expiration**: JWTs have a configurable expiration time to enhance security. Users will need to log in again after the token expires.
-
-**Middleware**: Middleware is employed to validate JWTs on protected routes, ensuring only authenticated users can access their tasks.
-
-**Logout**: Users can log out, which invalidates their JWT, further enhancing security.
+- `/client`: Contains the React client application.
+- `/server`: Contains the Express.js server application.
 
 ## Technologies Used
-**Node.js**: Server-side runtime environment.
 
-**Express.js**: Web application framework for Node.js.
-
-**MongoDB**: NoSQL database for storing user data.
-
-**EJS**: Templating engine for rendering views.
-
-**JSON Web Tokens (JWT)**: Secure user authentication and authorization.
-
-**Material UI**: Front-end CSS framework for responsive design.
+- React
+- Express.js
+- MongoDB
+- Web Push (for push notifications)
+- dotenv (for environment variables)
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
+
+1. Fork the repository.
+2. Create your feature branch (`git checkout -b feature/YourFeature`).
+3. Commit your changes (`git commit -am 'Add some feature'`).
+4. Push to the branch (`git push origin feature/YourFeature`).
+5. Open a pull request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 
-## Contact
-If you have any questions, suggestions, or feedback, please feel free to contact the project maintainer:
+Replace <repository-url> with your actual Git repository URL. Make sure to update the MongoDB URI (<MongoDB-URI>) and JWT secret (<Your-JWT-Secret>) placeholders accordingly in your .env files.
 
-**Email**: hello.holodeck@gmail.com
+This Markdown code provides a structured and formatted README.md for your "pushytasks" application. Adjust it further based on your specific project details or additional requirements.
