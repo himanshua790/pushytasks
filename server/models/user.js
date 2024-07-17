@@ -14,6 +14,7 @@ const validate = (data) => {
   const schema = Joi.object({
     name: Joi.string().min(1).max(50).required(),
     metamaskAddress: Joi.string().required(),
+    role: Joi.string().valid("admin", "user").required(),
   });
   return schema.validate(data);
 };

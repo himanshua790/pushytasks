@@ -174,7 +174,7 @@ const Main = () => {
         alert("Task updated successfully");
         setEditModal(false);
         await fetchTasks();
-      }else {
+      } else {
         alert("Failed to update task. Please check your input.");
       }
     } catch (error) {
@@ -191,6 +191,44 @@ const Main = () => {
     localStorage.removeItem("token");
     navigate("/");
     window.location.reload();
+  };
+
+  const acceptTask = async (taskId) => {
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        const metamaskAddress = accounts[0];
+        const message = `Accept task with ID: ${taskId}`;
+
+        // Request signature
+        const signature = await window.ethereum.request({
+          method: "personal_sign",
+          params: [message, metamaskAddress],
+        });
+
+        const url = "http://localhost:5000/api/tasks/accept";
+        const res = await axiosInstance.post(url, {
+          metamaskAddress,
+          taskId,
+          signature,
+          message,
+        });
+
+        if (res.status === 200) {
+          console.log("Task accepted successfully");
+        } else {
+          console.log("Failed to accept task");
+        }
+      } catch (error) {
+        console.error("Error accepting task:", error);
+      } finally {
+        fetchTasks();
+      }
+    } else {
+      console.error("MetaMask is not installed!");
+    }
   };
 
   return (
@@ -529,6 +567,16 @@ const Main = () => {
                     >
                       View Details
                     </Button>
+                    {role === "user" && (
+                      <Button
+                        size="small"
+                        onClick={() => acceptTask(task._id)}
+                        disabled={task.assignTo}
+                        sx={{ mt: 2, color: task.assignTo ? "success.main" : "" }}
+                      >
+                        {task.assignTo ? "Accepted" : "Accept"}
+                      </Button>
+                    )}
                     {role === "admin" && (
                       <>
                         <Button

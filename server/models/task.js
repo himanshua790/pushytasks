@@ -9,6 +9,7 @@ const taskSchema = new mongoose.Schema({
   taskDeadline: { type: Date, required: true },
   reward: { type: Number, required: true },
   status: { type: String, enum: ['pending', 'draft', 'completed'], required: true },
+  assignTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
 });
 
 const Task = mongoose.model('Task', taskSchema);
