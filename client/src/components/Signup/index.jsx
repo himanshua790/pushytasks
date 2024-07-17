@@ -23,7 +23,8 @@ export default function Signup() {
     firstName : "",
     lastName : "",
     email : "",
-    password : ""
+    password : "",
+    role: "user"
   })
   const [error,setError] = useState("")
   const handleChange = (event)=>{
@@ -34,7 +35,7 @@ export default function Signup() {
     event.preventDefault();
     // console.log(data)
     try{
-     const url = "https://task-management-application-8t8x.onrender.com/api/users"
+     const url = "http://localhost:5000/api/users"
      const res = await axios.post(url,data);
      console.log("response from server :",res)
      navigate("/login")

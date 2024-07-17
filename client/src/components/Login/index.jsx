@@ -30,7 +30,7 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try{
-      const url = "https://task-management-application-8t8x.onrender.com/api/auth"
+      const url = "http://localhost:5000/api/auth"
       const res= await axios.post(url,data)
       localStorage.setItem("token",res.data.token);
       // console.log(res.data.token);

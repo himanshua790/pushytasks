@@ -1,11 +1,9 @@
+// routes/task.js
 const express = require("express");
 const router = express.Router();
-const { DynamoDB } = require("aws-sdk");
-const bcrypt = require("bcrypt");
 const { User } = require("../models/user");
+const { Task, validateTask } = require("../models/task");
 const jwt = require("jsonwebtoken");
-const { v4: uuidv4 } = require("uuid");
-var docClient = new DynamoDB.DocumentClient();
 
 router.post("/create-task", async (req, res) => {
   try {
@@ -15,43 +13,30 @@ router.post("/create-task", async (req, res) => {
     }
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const email = decodedToken.email;
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email }).lean();
 
     if (!user) {
       return res.status(401).json({ error: "Something went wrong!" });
     }
-    const userId = user._id.toString();
-    const itemId = uuidv4();
-    var item = {
-      id: itemId,
-      userId: userId,
+
+    const { error } = validateTask({
+      ...req.body,
+      userId: user._id.toString(),
+    });
+    if (error)
+      return res.status(400).send({ message: error.details[0].message });
+
+    const task = new Task({
+      userId: user._id,
       taskTitle: req.body.taskTitle,
       taskDetail: req.body.taskDetail,
       taskDeadline: req.body.taskDeadline,
-    };
-
-    var dbParam = {
-      TableName: "tasks",
-      Item: item,
-    };
-
-    docClient.put(dbParam, function (err, data) {
-      if (err) {
-        return res.status(500).send("Error :", err);
-      }
+      reward: req.body.reward,
+      status: req.body.status,
     });
-    var params = {
-      TableName: "tasks",
-      Key: { id: itemId, userId: userId },
-    };
 
-    docClient.get(params, function (err, data) {
-      if (err) {
-        return res.status(404).send(err);
-      } else {
-        return res.status(200).send(data.Item);
-      }
-    });
+    await task.save();
+    res.status(201).send(task);
   } catch (error) {
     res.status(500).send("Internal server error");
   }
@@ -70,69 +55,54 @@ router.get("/", async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Something went wrong!" });
     }
-    const userId = user._id.toString();
 
-    const queryParams = {
-      TableName: "tasks",
-      FilterExpression: "userId = :value",
-      ExpressionAttributeValues: {
-        ":value": userId,
-      },
-    };
-    const result = await docClient.scan(queryParams).promise();
-    return res.status(200).send(result.Items); 
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-router.post("/edit", async (req, res) => {
-  try {
-    const taskId = req.body.id;
-
-    var item = {
-      id: taskId,
-      userId: req.body.userId,
-      taskTitle: req.body.taskTitle,
-      taskDetail: req.body.taskDetail,
-      taskDeadline: req.body.taskDeadline,
-    };
-
-    var dbParam = {
-      TableName: "tasks",
-      Item: item,
-    };
-
-    docClient.put(dbParam, function (err, data) {
-      if (err) {
-        return res.status(500).send("Error :", err);
-      }
-    });
+    const tasks = await Task.find({ userId: user._id });
+    res.status(200).send(tasks);
   } catch (error) {
     res.status(500).send("Internal server error");
   }
 });
 
+router.post('/edit', async (req, res) => {
+  try {
+    const authHeader = req.header('Authorization');
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Token is missing' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Get the token from "Bearer <token>"
+    if (!token) {
+      return res.status(401).json({ error: 'Token is missing' });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const email = decodedToken.email;
+    const user = await User.findOne({ email: email }).lean();
+    if (!user) {
+      return res.status(401).json({ error: 'Something went wrong!' });
+    }
+    if (user.role !== 'admin') {
+      return res.status(401).json({ error: 'Unauthorized access' });
+    }
+
+    const { error } = validateTask(req.body);
+    if (error) return res.status(400).send({ message: error.details[0].message });
+
+    const task = await Task.findByIdAndUpdate(req.body.id, req.body, { new: true });
+
+    if (!task) return res.status(404).send('Task not found');
+    res.status(200).send(task);
+  } catch (error) {
+    res.status(500).send('Internal server error');
+  }
+});
+
 router.delete("/delete", async (req, res) => {
   try {
-    const taskId = req.body.id;
-    const userId = req.body.userId;
-    var params = {
-      TableName: "tasks",
-      Key: {
-        id: taskId,
-        userId: userId,
-      },
-    };
-    //  console.log(params)
+    const task = await Task.findByIdAndDelete(req.body.id);
+    if (!task) return res.status(404).send("Task not found");
 
-    docClient.delete(params, function (err, data) {
-      if (err) {
-        console.log("Error", err);
-      } else {
-        return res.status(200).send("Task deleted successfully");
-      }
-    });
+    res.status(200).send("Task deleted successfully");
   } catch (error) {
     res.status(500).send("Internal server error");
   }

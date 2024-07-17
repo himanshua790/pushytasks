@@ -1,39 +1,86 @@
-# Description
+# Task App with JWT Authentication
 
-A MERN stack ecommerce application in which JWT is used for authentication and dummyJSON API is used for fetching products. This application has various functionalities like search product, filter product by price and category and it also has cart functionality.
+Task App is a powerful and secure task management application designed to help you stay organized and productive. Easily create, update, and manage your tasks with this user-friendly web-based application, all while benefiting from JWT-based user authentication for enhanced security.
 
-## Available Scripts
+## Features
+JWT User Authentication: Securely create an account, log in, and access your tasks using JSON Web Tokens (JWT) for robust authentication and authorization.
 
-In the project directory, you can run:
+Task Creation: Add new tasks with titles, descriptions, due dates, and priority levels.
 
-### `npm start`
+Task List: View and manage your tasks in a clear and organized list format.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Task Details: Access detailed information about each task, including its description and due date.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Task Editing: Edit task details, update due dates, and change priority levels as needed.
 
-### Code Splitting
+Task Deletion: Remove completed or unnecessary tasks from your list.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Responsive Design: Enjoy a seamless experience on both desktop and mobile devices.
 
-### Analyzing the Bundle Size
+## Getting Started
+To run this application locally or deploy it on your server, follow these steps:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Clone the Repository:
 
-### Making a Progressive Web App
+```bash
+git clone https://github.com/himanshua790/pushytasks.git
+cd task-app
+```
+## Install Dependencies:
+```bash
+npm install
+```
+## Configure Environment Variables:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Create a `.env` file in the project root.
+Define the necessary environment variables, such as the JWT secret, database connection information, and session settings.
 
-### Advanced Configuration
+## Database Setup:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Set up your preferred database (e.g., MongoDB,DynamoDB).
+Update the database connection URL in your `.env` file.
+Start the Application:
 
-### Deployment
+```bash
+npm start
+```
+Access the Application:
+Open your web browser and navigate to ```http://localhost:3000``` (or the specified port).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## JWT Authentication
+Task App uses JSON Web Tokens (JWT) for user authentication and authorization. Here's how JWT authentication works:
 
-### `npm run build` fails to minify
+**User Registration**: Users can securely create an account with a unique username and a strong password.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**User Login**: Upon successful registration, users can log in using their credentials, and the server will issue a JWT for subsequent authentication.
+
+**JWT Authorization**: The JWT is used to authorize users and grant access to their tasks. It is included in the request headers for protected routes.
+
+**Token Expiration**: JWTs have a configurable expiration time to enhance security. Users will need to log in again after the token expires.
+
+**Middleware**: Middleware is employed to validate JWTs on protected routes, ensuring only authenticated users can access their tasks.
+
+**Logout**: Users can log out, which invalidates their JWT, further enhancing security.
+
+## Technologies Used
+**Node.js**: Server-side runtime environment.
+
+**Express.js**: Web application framework for Node.js.
+
+**MongoDB**: NoSQL database for storing user data.
+
+**EJS**: Templating engine for rendering views.
+
+**JSON Web Tokens (JWT)**: Secure user authentication and authorization.
+
+**Material UI**: Front-end CSS framework for responsive design.
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+
+## Contact
+If you have any questions, suggestions, or feedback, please feel free to contact the project maintainer:
+
+**Email**: hello.holodeck@gmail.com

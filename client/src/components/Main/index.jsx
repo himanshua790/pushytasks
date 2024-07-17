@@ -3,16 +3,23 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { TextField, Stack } from "@mui/material";
+import {
+  TextField,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { useNavigate } from "react-router-dom";
 import Modal from "@mui/material/Modal";
+import axiosInstance from "../../utils/axiosInstance";
 
 const style = {
   position: "absolute",
@@ -30,11 +37,14 @@ const Main = () => {
   const [tasks, setTasks] = useState(null);
   const [taskModal, setTaskModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-  const [taskDetailModal,setTaskDetailModal] = useState(false)
+  const [role, setRole] = useState("user");
+  const [taskDetailModal, setTaskDetailModal] = useState(false);
   const [data, setData] = useState({
     taskTitle: "",
     taskDetail: "",
     taskDeadline: "",
+    reward: 1000,
+    status: "draft",
   });
   const [task, setTask] = useState(data);
   const JWT = localStorage.getItem("token");
@@ -42,34 +52,53 @@ const Main = () => {
   const handleInput = (e) => {
     e.preventDefault();
     setData({ ...data, [e.target.name]: e.target.value });
-    // console.log(data.taskDeadline)
   };
+
   const handleEditInput = (e) => {
     e.preventDefault();
     setTask({ ...task, [e.target.name]: e.target.value });
-    // console.log(data.taskDeadline)
   };
+
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("https://task-management-application-8t8x.onrender.com/api/tasks", {
+      const res = await axiosInstance.get("http://localhost:5000/api/tasks", {
         headers: {
           token: JWT,
           Accept: "application/json",
           "Content-Type": "application/json",
         },
       });
-      // console.log(res.data)
-      if (res.status == 200) setTasks(res.data);
+      if (res.status === 200) setTasks(res.data);
       else console.log("Error :", res.status);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const fetchUser = async () => {
+    try {
+      const res = await axiosInstance.get("http://localhost:5000/api/users", {
+        headers: {
+          token: JWT,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+      if (res.status === 200) {
+        setRole(res.data.role);
+      } else {
+        console.log("Error :", res.status);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "https://task-management-application-8t8x.onrender.com/api/tasks/create-task",
+      const res = await axiosInstance.post(
+        "http://localhost:5000/api/tasks/create-task",
         data,
         {
           headers: {
@@ -79,10 +108,9 @@ const Main = () => {
           },
         }
       );
-      if (res.status === 200) {
+      if (res.status === 201) {
         setTaskModal(false);
         alert("Task created successfully");
-
         await fetchTasks();
       } else {
         alert("Failed to create task. Please check your input.");
@@ -91,18 +119,24 @@ const Main = () => {
       console.log(error);
     }
   };
+
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
+    fetchUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDelete = async (task_data) => {
     try {
-      const res = await axios.delete("https://task-management-application-8t8x.onrender.com/api/tasks/delete", {
-        data: task_data,
-      });
-      if (res.status == 200) {
+      const res = await axiosInstance.delete(
+        "http://localhost:5000/api/tasks/delete",
+        {
+          data: task_data,
+        }
+      );
+      if (res.status === 200) {
         await fetchTasks();
       }
     } catch (error) {
@@ -113,32 +147,45 @@ const Main = () => {
   const handleEdit = (task_data) => {
     setEditModal(true);
     setTask({
-      ...task,
       id: task_data.id,
       userId: task_data.userId,
       taskTitle: task_data.taskTitle,
       taskDetail: task_data.taskDetail,
-      taskDeadline: task_data.taskDeadline,
+      taskDeadline: task_data.taskDeadline, // Ensure taskDeadline is set here
+      reward: task_data.reward,
+      status: task_data.status,
     });
   };
   const handleUpdate = async (task_data) => {
     try {
-      const res = await axios.post("https://task-management-application-8t8x.onrender.com/api/tasks/edit", {
-        id: task_data.id,
-        userId: task_data.userId,
-        taskTitle: task_data.taskTitle,
-        taskDetail: task_data.taskDetail,
-        taskDeadline: task_data.taskDeadline,
-      });
-      fetchTasks();
+      const res = await axiosInstance.post(
+        "http://localhost:5000/api/tasks/edit",
+        {
+          id: task_data.id,
+          userId: task_data.userId,
+          taskTitle: task_data.taskTitle,
+          taskDetail: task_data.taskDetail,
+          taskDeadline: task_data.taskDeadline,
+          reward: task_data.reward,
+          status: task_data.status,
+        }
+      );
+      if (res.status === 200) {
+        alert("Task updated successfully");
+        setEditModal(false);
+        await fetchTasks();
+      }else {
+        alert("Failed to update task. Please check your input.");
+      }
     } catch (error) {
       console.log(error);
     }
   };
-  const handleDetail = (task) =>{
-    setTaskDetailModal(true)
-    setTask(task)
-  }
+
+  const handleDetail = (task) => {
+    setTaskDetailModal(true);
+    setTask(task);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -148,8 +195,8 @@ const Main = () => {
 
   return (
     <>
-      <Box sx={{ flexGrow: 1}}>
-        <AppBar position="static" style={{ background: 'teal' }} >
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="static" style={{ background: "teal" }}>
           <Toolbar>
             <Typography
               variant="h6"
@@ -159,7 +206,6 @@ const Main = () => {
             >
               Task Management App
             </Typography>
-
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               <Button color="inherit" onClick={handleLogout}>
@@ -170,21 +216,22 @@ const Main = () => {
         </AppBar>
       </Box>
       <Container sx={{ mt: 5 }}>
-        <Button
-          variant="outlined"
-          onClick={() => setTaskModal(true)}
-          
-          sx={{
-            "&:hover": {
-              backgroundColor: "#0069d9",
-              borderColor: "#0062cc",
-              color: "#ffff",
-              boxShadow: "0 0 0 0.2rem rgba(0,123,255,.5)",
-            },
-          }}
-        >
-          Create Task
-        </Button>
+        {role === "admin" && (
+          <Button
+            variant="outlined"
+            onClick={() => setTaskModal(true)}
+            sx={{
+              "&:hover": {
+                backgroundColor: "#0069d9",
+                borderColor: "#0062cc",
+                color: "#ffff",
+                boxShadow: "0 0 0 0.2rem rgba(0,123,255,.5)",
+              },
+            }}
+          >
+            Create Task
+          </Button>
+        )}
         <Modal
           open={taskModal}
           onClose={() => setTaskModal(false)}
@@ -206,7 +253,6 @@ const Main = () => {
                 required
                 sx={{ mb: 4 }}
               />
-
               <TextField
                 type="text"
                 variant="outlined"
@@ -222,7 +268,6 @@ const Main = () => {
                 required
                 sx={{ mb: 4 }}
               />
-
               <TextField
                 type="date"
                 variant="outlined"
@@ -234,14 +279,41 @@ const Main = () => {
                 fullWidth
                 required
                 sx={{ mb: 4 }}
+                InputLabelProps={{ shrink: true }}
               />
+              <TextField
+                type="number"
+                variant="outlined"
+                color="secondary"
+                label="Reward"
+                name="reward"
+                onChange={(e) => handleInput(e)}
+                value={data.reward}
+                fullWidth
+                required
+                sx={{ mb: 4 }}
+              />
+              <FormControl fullWidth sx={{ mb: 4 }}>
+                <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  name="status"
+                  value={data.status}
+                  label="Status"
+                  onChange={(e) => handleInput(e)}
+                >
+                  <MenuItem value="draft">Draft</MenuItem>
+                  <MenuItem value="pending">Pending</MenuItem>
+                  <MenuItem value="completed">Completed</MenuItem>
+                </Select>
+              </FormControl>
               <Stack container spacing={2}>
                 <Button
                   variant="outlined"
                   color="secondary"
                   type="submit"
                   onClick={handleCreate}
-                  
                 >
                   Create Task
                 </Button>
@@ -277,7 +349,6 @@ const Main = () => {
                 required
                 sx={{ mb: 4 }}
               />
-
               <TextField
                 type="text"
                 variant="outlined"
@@ -293,7 +364,6 @@ const Main = () => {
                 required
                 sx={{ mb: 4 }}
               />
-
               <TextField
                 type="date"
                 variant="outlined"
@@ -305,15 +375,46 @@ const Main = () => {
                 fullWidth
                 required
                 sx={{ mb: 4 }}
+                InputLabelProps={{ shrink: true }}
               />
+              <TextField
+                type="number"
+                variant="outlined"
+                color="secondary"
+                label="Reward"
+                name="reward"
+                onChange={(e) => handleEditInput(e)}
+                value={task.reward}
+                fullWidth
+                required
+                sx={{ mb: 4 }}
+              />
+              <FormControl fullWidth sx={{ mb: 4 }}>
+                <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  name="status"
+                  value={task.status}
+                  label="Status"
+                  onChange={(e) => handleEditInput(e)}
+                >
+                  <MenuItem value="draft">Draft</MenuItem>
+                  <MenuItem value="pending">Pending</MenuItem>
+                  <MenuItem value="completed">Completed</MenuItem>
+                </Select>
+              </FormControl>
               <Stack container spacing={2}>
                 <Button
                   variant="outlined"
                   color="secondary"
                   type="submit"
-                  onClick={() => handleUpdate(task)}
+                  onClick={() => {
+                    handleUpdate(task);
+                    setEditModal(false);
+                  }}
                 >
-                  Save
+                  Update Task
                 </Button>
                 <Button
                   variant="outlined"
@@ -343,10 +444,9 @@ const Main = () => {
                 name="taskTitle"
                 value={task.taskTitle}
                 fullWidth
-                required
+                disabled
                 sx={{ mb: 4 }}
               />
-
               <TextField
                 type="text"
                 variant="outlined"
@@ -358,10 +458,9 @@ const Main = () => {
                 maxRows={4}
                 value={task.taskDetail}
                 fullWidth
-                required
+                disabled
                 sx={{ mb: 4 }}
               />
-
               <TextField
                 type="date"
                 variant="outlined"
@@ -370,11 +469,37 @@ const Main = () => {
                 name="taskDeadline"
                 value={task.taskDeadline}
                 fullWidth
-                required
+                disabled
+                sx={{ mb: 4 }}
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                type="number"
+                variant="outlined"
+                color="secondary"
+                label="Reward"
+                name="reward"
+                value={task.reward}
+                fullWidth
+                disabled
                 sx={{ mb: 4 }}
               />
+              <FormControl fullWidth sx={{ mb: 4 }}>
+                <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  name="status"
+                  value={task.status}
+                  label="Status"
+                  disabled
+                >
+                  <MenuItem value="draft">Draft</MenuItem>
+                  <MenuItem value="pending">Pending</MenuItem>
+                  <MenuItem value="completed">Completed</MenuItem>
+                </Select>
+              </FormControl>
               <Stack container spacing={2}>
-              
                 <Button
                   variant="outlined"
                   color="error"
@@ -386,74 +511,48 @@ const Main = () => {
             </form>
           </Box>
         </Modal>
-        <h1>Tasks :</h1>
-        <Grid container spacing={2}>
-          {tasks && tasks !== undefined && tasks.length > 0 ? (
-            tasks.map((task) => (
-              <Grid item xs={12} sm={6} md={4} key={task.id}>
-                <Card
-                  sx={{
-                    maxWidth: 300,
-                    bgcolor: "#e0f2f1",
-                    borderRadius: "8px",
-                    padding: "8px",
-                    marginBottom:"20px",
-                    transition: "background-color 0.3s, box-shadow 0.3s",
-                    boxShadow: "0px 8px 14px rgba(0, 0, 0, 0.2)",
-                    "&:hover": {
-                      border: "white",
-                      backgroundColor: "#b9f6ca",
-                      boxShadow: "0px 18px 18px rgba(0, 0, 0, 0.2)",
-                    },
-                  }}
-                >
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          {tasks &&
+            tasks.map((task, i) => (
+              <Grid item key={i} xs={12} md={6} lg={4}>
+                <Card>
                   <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">
-                      {task.taskTitle.length > 15
-                        ? `${task.taskTitle.substring(0, 15)}...`
-                        : task.taskTitle}
+                    <Typography variant="h5" component="div">
+                      {task.taskTitle}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {task.taskDetail.length > 40
-                        ? `${task.taskDetail.substring(0, 40)}...`
-                        : task.taskDetail}
+                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                      Reward: {task.reward}
                     </Typography>
-                    <Typography variant="body" color="red">
-                      Due Date :{task.taskDeadline}
-                    </Typography>
+                    <Typography variant="body2">{task.taskDetail}</Typography>
+                    <Button
+                      size="small"
+                      onClick={() => handleDetail(task)}
+                      sx={{ mt: 2 }}
+                    >
+                      View Details
+                    </Button>
+                    {role === "admin" && (
+                      <>
+                        <Button
+                          size="small"
+                          onClick={() => handleEdit(task)}
+                          sx={{ mt: 2, ml: 1 }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="small"
+                          onClick={() => handleDelete(task)}
+                          sx={{ mt: 2, ml: 1, color: "error.main" }}
+                        >
+                          Delete
+                        </Button>
+                      </>
+                    )}
                   </CardContent>
-
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      style={{backgroundColor:"#f1f8e9"}}
-                      onClick={() => handleEdit(task)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      style={{backgroundColor:"#ffebee"}}
-                      onClick={() => handleDelete(task)}
-                    >
-                      Delete
-                    </Button>
-                    <Button variant="outlined"  style={{backgroundColor:"#e0f7fa"}} onClick={() => handleDetail(task)}>Details</Button>
-                  </Stack>
                 </Card>
               </Grid>
-            ))
-          ) : (
-            <Container sx={{ marginTop: 2 }}>No task found...</Container>
-          )}
+            ))}
         </Grid>
       </Container>
     </>

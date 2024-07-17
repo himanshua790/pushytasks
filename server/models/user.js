@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   tasks : [{type: mongoose.Schema.Types.Mixed }],    //Array of tasks
+  role: { type: String, required: true },
 });
 
 const User = new mongoose.model("User", userSchema);
@@ -21,6 +22,7 @@ const validate = (data) => {
         tlds: { allow: ["com", "net"] },
       }).required(),
     password: passwordComplexity().required(),
+    role: Joi.string().required(),
   });
   return schema.validate(data);
 };
