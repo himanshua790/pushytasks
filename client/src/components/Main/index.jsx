@@ -239,7 +239,7 @@ const Main = () => {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
-            <h2>Task Details</h2>
+            <h2>Create Task</h2>
             <form>
               <TextField
                 type="text"
@@ -305,7 +305,6 @@ const Main = () => {
                 >
                   <MenuItem value="draft">Draft</MenuItem>
                   <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="completed">Completed</MenuItem>
                 </Select>
               </FormControl>
               <Stack container spacing={2}>
@@ -401,7 +400,6 @@ const Main = () => {
                 >
                   <MenuItem value="draft">Draft</MenuItem>
                   <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="completed">Completed</MenuItem>
                 </Select>
               </FormControl>
               <Stack container spacing={2}>
@@ -434,7 +432,7 @@ const Main = () => {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
-            <h2>Task Details</h2>
+            <h2>Task Details-2</h2>
             <form>
               <TextField
                 type="text"
